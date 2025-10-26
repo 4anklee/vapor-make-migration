@@ -80,7 +80,7 @@ struct SchemaDiffTests {
         let diff = comparator.compare(current: schema, desired: schema)
 
         #expect(diff.isEmpty)
-        #expect(diff.changes.count == 0)
+        #expect(diff.changes.isEmpty)
     }
 
     @Test("Detects new table creation")
@@ -396,7 +396,7 @@ struct DatabaseSchemaTests {
     @Test("Empty schema has no tables")
     func emptySchema() {
         let schema = DatabaseSchema(tables: [])
-        #expect(schema.tables.count == 0)
+        #expect(schema.tables.isEmpty)
         #expect(schema.table(named: "anything") == nil)
     }
 }
@@ -406,13 +406,21 @@ struct DatabaseSchemaTests {
 @Suite("Schema Change Description Tests")
 struct SchemaChangeDescriptionTests {
 
-    @Test("Change descriptions are human-readable", arguments: [
-        (SchemaChange.createTable(TableSchema(name: "users", columns: [])), "Create table 'users'"),
-        (SchemaChange.dropTable("old_table"), "Drop table 'old_table'"),
-        (SchemaChange.renameTable(from: "old_name", to: "new_name"), "Rename table 'old_name' to 'new_name'"),
-        (SchemaChange.addColumn(table: "users", column: ColumnSchema(name: "email", dataType: .string(length: nil))), "Add column 'email' to table 'users'"),
-        (SchemaChange.dropColumn(table: "users", columnName: "old_field"), "Drop column 'old_field' from table 'users'"),
-    ])
+    @Test(
+        "Change descriptions are human-readable",
+        arguments: [
+            (SchemaChange.createTable(TableSchema(name: "users", columns: [])), "Create table 'users'"),
+            (SchemaChange.dropTable("old_table"), "Drop table 'old_table'"),
+            (SchemaChange.renameTable(from: "old_name", to: "new_name"),
+             "Rename table 'old_name' to 'new_name'"),
+            (SchemaChange.addColumn(
+                table: "users",
+                column: ColumnSchema(name: "email", dataType: .string(length: nil))
+            ), "Add column 'email' to table 'users'"),
+            (SchemaChange.dropColumn(table: "users", columnName: "old_field"),
+             "Drop column 'old_field' from table 'users'"),
+        ]
+    )
     func changeDescriptions(change: SchemaChange, expected: String) {
         #expect(change.description == expected)
     }

@@ -27,7 +27,12 @@ public struct DatabaseIntrospector {
     }
 
     private var sql: any SQLDatabase {
-        (database as! any SQLDatabase)
+        get throws {
+            guard let sqlDatabase = database as? any SQLDatabase else {
+                throw IntrospectionError.unsupportedDatabase(database.context.configuration.id)
+            }
+            return sqlDatabase
+        }
     }
 
     // MARK: - PostgreSQL
