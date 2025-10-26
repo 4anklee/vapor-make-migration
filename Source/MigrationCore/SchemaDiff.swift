@@ -38,7 +38,7 @@ public enum SchemaChange: Equatable, Sendable {
             return "Drop column '\(columnName)' from table '\(table)'"
         case .modifyColumn(let table, let columnName, _, _):
             return "Modify column '\(columnName)' in table '\(table)'"
-        case .addConstraint(let table, let constraint):
+        case .addConstraint(let table, _):
             return "Add constraint to table '\(table)'"
         case .dropConstraint(let table, let constraintName):
             return "Drop constraint '\(constraintName)' from table '\(table)'"
@@ -98,13 +98,15 @@ public struct SchemaComparator {
         // Find modified columns
         for desiredColumn in desired.columns {
             if let currentColumn = current.columns.first(where: { $0.name == desiredColumn.name }),
-               currentColumn != desiredColumn {
-                changes.append(.modifyColumn(
-                    table: current.name,
-                    columnName: currentColumn.name,
-                    from: currentColumn,
-                    to: desiredColumn
-                ))
+                currentColumn != desiredColumn
+            {
+                changes.append(
+                    .modifyColumn(
+                        table: current.name,
+                        columnName: currentColumn.name,
+                        from: currentColumn,
+                        to: desiredColumn
+                    ))
             }
         }
 
@@ -118,7 +120,8 @@ public struct SchemaComparator {
         // Find dropped constraints
         for currentConstraint in current.constraints {
             if !desired.constraints.contains(currentConstraint),
-               let name = currentConstraint.name {
+                let name = currentConstraint.name
+            {
                 changes.append(.dropConstraint(table: current.name, constraintName: name))
             }
         }

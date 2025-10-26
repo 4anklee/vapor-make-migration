@@ -15,11 +15,11 @@ public struct DatabaseIntrospector {
 
     public func introspect() async throws -> DatabaseSchema {
         // Determine database type by checking the SQL database type
-        if sql is PostgresDatabase {
+        if try sql is PostgresDatabase {
             return try await introspectPostgreSQL()
-        } else if sql is MySQLDatabase {
+        } else if try sql is MySQLDatabase {
             return try await introspectMySQL()
-        } else if sql is SQLiteDatabase {
+        } else if try sql is SQLiteDatabase {
             return try await introspectSQLite()
         } else {
             throw IntrospectionError.unsupportedDatabase(DatabaseID(string: "unknown"))
@@ -29,7 +29,7 @@ public struct DatabaseIntrospector {
     private var sql: any SQLDatabase {
         get throws {
             guard let sqlDatabase = database as? any SQLDatabase else {
-                throw IntrospectionError.unsupportedDatabase(database.context.configuration.id)
+                throw IntrospectionError.unsupportedDatabase(DatabaseID(string: "unknown"))
             }
             return sqlDatabase
         }

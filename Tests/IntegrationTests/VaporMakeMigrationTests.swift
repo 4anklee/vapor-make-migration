@@ -1,4 +1,5 @@
 import Testing
+
 @testable import MigrationCore
 
 // MARK: - Schema Model Tests
@@ -12,7 +13,7 @@ struct SchemaModelTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "name", dataType: .string(length: 255))
+                ColumnSchema(name: "name", dataType: .string(length: 255)),
             ]
         )
 
@@ -20,7 +21,7 @@ struct SchemaModelTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "name", dataType: .string(length: 255))
+                ColumnSchema(name: "name", dataType: .string(length: 255)),
             ]
         )
 
@@ -91,7 +92,7 @@ struct SchemaDiffTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "name", dataType: .string(length: 255))
+                ColumnSchema(name: "name", dataType: .string(length: 255)),
             ]
         )
         let desired = DatabaseSchema(tables: [newTable])
@@ -142,7 +143,7 @@ struct SchemaDiffTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "email", dataType: .string(length: nil))
+                ColumnSchema(name: "email", dataType: .string(length: nil)),
             ]
         )
 
@@ -168,7 +169,7 @@ struct SchemaDiffTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "old_field", dataType: .string(length: nil))
+                ColumnSchema(name: "old_field", dataType: .string(length: nil)),
             ]
         )
 
@@ -231,7 +232,7 @@ struct SchemaDiffTests {
             name: "users",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "old_field", dataType: .string(length: nil))
+                ColumnSchema(name: "old_field", dataType: .string(length: nil)),
             ]
         )
 
@@ -240,7 +241,7 @@ struct SchemaDiffTests {
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
                 ColumnSchema(name: "name", dataType: .string(length: 255)),
-                ColumnSchema(name: "email", dataType: .string(length: nil))
+                ColumnSchema(name: "email", dataType: .string(length: nil)),
             ]
         )
 
@@ -272,7 +273,9 @@ struct MigrationGeneratorTests {
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
                 ColumnSchema(name: "name", dataType: .string(length: 255), isOptional: false),
-                ColumnSchema(name: "email", dataType: .string(length: nil), isOptional: false, isUnique: true)
+                ColumnSchema(
+                    name: "email", dataType: .string(length: nil), isOptional: false, isUnique: true
+                ),
             ],
             constraints: [
                 ConstraintSchema(type: .primaryKey, columns: ["id"], name: "users_pkey")
@@ -339,7 +342,7 @@ struct MigrationGeneratorTests {
         let newColumn = ColumnSchema(name: "age", dataType: .int32)
         let changes: [SchemaChange] = [
             .addColumn(table: "users", column: newColumn),
-            .dropColumn(table: "users", columnName: "old_field")
+            .dropColumn(table: "users", columnName: "old_field"),
         ]
 
         let diff = SchemaDiff(changes: changes)
@@ -358,7 +361,7 @@ struct MigrationGeneratorTests {
             name: "products",
             columns: [
                 ColumnSchema(name: "id", dataType: .uuid),
-                ColumnSchema(name: "name", dataType: .string(length: 255))
+                ColumnSchema(name: "name", dataType: .string(length: 255)),
             ]
         )
 
@@ -409,16 +412,25 @@ struct SchemaChangeDescriptionTests {
     @Test(
         "Change descriptions are human-readable",
         arguments: [
-            (SchemaChange.createTable(TableSchema(name: "users", columns: [])), "Create table 'users'"),
+            (
+                SchemaChange.createTable(TableSchema(name: "users", columns: [])),
+                "Create table 'users'"
+            ),
             (SchemaChange.dropTable("old_table"), "Drop table 'old_table'"),
-            (SchemaChange.renameTable(from: "old_name", to: "new_name"),
-             "Rename table 'old_name' to 'new_name'"),
-            (SchemaChange.addColumn(
-                table: "users",
-                column: ColumnSchema(name: "email", dataType: .string(length: nil))
-            ), "Add column 'email' to table 'users'"),
-            (SchemaChange.dropColumn(table: "users", columnName: "old_field"),
-             "Drop column 'old_field' from table 'users'"),
+            (
+                SchemaChange.renameTable(from: "old_name", to: "new_name"),
+                "Rename table 'old_name' to 'new_name'"
+            ),
+            (
+                SchemaChange.addColumn(
+                    table: "users",
+                    column: ColumnSchema(name: "email", dataType: .string(length: nil))
+                ), "Add column 'email' to table 'users'"
+            ),
+            (
+                SchemaChange.dropColumn(table: "users", columnName: "old_field"),
+                "Drop column 'old_field' from table 'users'"
+            ),
         ]
     )
     func changeDescriptions(change: SchemaChange, expected: String) {
@@ -431,8 +443,10 @@ struct SchemaChangeDescriptionTests {
         let addConstraint = SchemaChange.addConstraint(table: "users", constraint: constraint)
         #expect(addConstraint.description == "Add constraint to table 'users'")
 
-        let dropConstraint = SchemaChange.dropConstraint(table: "users", constraintName: "users_email_key")
-        #expect(dropConstraint.description == "Drop constraint 'users_email_key' from table 'users'")
+        let dropConstraint = SchemaChange.dropConstraint(
+            table: "users", constraintName: "users_email_key")
+        #expect(
+            dropConstraint.description == "Drop constraint 'users_email_key' from table 'users'")
     }
 
     @Test("Modify column description")
@@ -453,14 +467,18 @@ struct SchemaChangeDescriptionTests {
 @Suite("Constraint Referential Actions")
 struct ConstraintReferentialActionTests {
 
-    @Test("Referential actions have correct SQL values", arguments: [
-        (ConstraintSchema.ConstraintType.ReferentialAction.cascade, "CASCADE"),
-        (.restrict, "RESTRICT"),
-        (.setNull, "SET NULL"),
-        (.setDefault, "SET DEFAULT"),
-        (.noAction, "NO ACTION")
-    ])
-    func referentialActions(action: ConstraintSchema.ConstraintType.ReferentialAction, expected: String) {
+    @Test(
+        "Referential actions have correct SQL values",
+        arguments: [
+            (ConstraintSchema.ConstraintType.ReferentialAction.cascade, "CASCADE"),
+            (.restrict, "RESTRICT"),
+            (.setNull, "SET NULL"),
+            (.setDefault, "SET DEFAULT"),
+            (.noAction, "NO ACTION"),
+        ])
+    func referentialActions(
+        action: ConstraintSchema.ConstraintType.ReferentialAction, expected: String
+    ) {
         #expect(action.rawValue == expected)
     }
 }
