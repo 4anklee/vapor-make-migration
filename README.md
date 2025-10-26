@@ -1,8 +1,8 @@
 # Vapor Make Migration
 
-[![Tests](https://github.com/yourusername/vapor-make-migration/actions/workflows/test.yml/badge.svg)](https://github.com/yourusername/vapor-make-migration/actions/workflows/test.yml)
-[![Swift 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/yourusername/vapor-make-migration)
+[![Tests](https://github.com/4anklee/vapor-make-migration/actions/workflows/test.yml/badge.svg)](https://github.com/4anklee/vapor-make-migration/actions/workflows/test.yml)
+[![Swift](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey.svg)](https://github.com/4anklee/vapor-make-migration)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 Auto-generate Vapor migration files by comparing Fluent models with your database schema.
