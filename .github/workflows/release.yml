@@ -1,0 +1,95 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-and-release:
+    name: Build and Release
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-macosx
+            artifact: vapor-make-migration-macos-x64
+          - os: macos-latest
+            target: arm64-apple-macosx
+            artifact: vapor-make-migration-macos-arm64
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact: vapor-make-migration-linux-x64
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: "6.0"
+
+    - name: Build release binary
+      run: |
+        swift build -c release
+        cp .build/release/vapor-make-migration ${{ matrix.artifact }}
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.artifact }}
+        path: ${{ matrix.artifact }}
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-and-release
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          vapor-make-migration-macos-x64/vapor-make-migration-macos-x64
+          vapor-make-migration-macos-arm64/vapor-make-migration-macos-arm64
+          vapor-make-migration-linux-x64/vapor-make-migration-linux-x64
+        body: |
+          ## Changes in this Release
+
+          See [CHANGELOG.md](CHANGELOG.md) for details.
+
+          ## Installation
+
+          Download the appropriate binary for your platform and add it to your PATH.
+
+          ### macOS (Apple Silicon)
+          ```bash
+          curl -L -o vapor-make-migration https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/vapor-make-migration-macos-arm64
+          chmod +x vapor-make-migration
+          sudo mv vapor-make-migration /usr/local/bin/
+          ```
+
+          ### macOS (Intel)
+          ```bash
+          curl -L -o vapor-make-migration https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/vapor-make-migration-macos-x64
+          chmod +x vapor-make-migration
+          sudo mv vapor-make-migration /usr/local/bin/
+          ```
+
+          ### Linux
+          ```bash
+          curl -L -o vapor-make-migration https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/vapor-make-migration-linux-x64
+          chmod +x vapor-make-migration
+          sudo mv vapor-make-migration /usr/local/bin/
+          ```
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

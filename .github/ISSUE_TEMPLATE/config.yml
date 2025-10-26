@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Question or Discussion
+    url: https://github.com/vapor/vapor/discussions
+    about: For general questions about Vapor and migrations, please use the Vapor discussions
+  - name: Vapor Documentation
+    url: https://docs.vapor.codes
+    about: Check the official Vapor documentation for more information

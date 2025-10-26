@@ -1,0 +1,54 @@
+name: Tests
+
+on:
+    push:
+        branches: [main, dev]
+    pull_request:
+        branches: [main, dev]
+
+jobs:
+    test:
+        name: Swift ${{ matrix.swift }} on ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest]
+                swift: ["6.0"]
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up Swift
+              uses: swift-actions/setup-swift@v2
+              with:
+                  swift-version: ${{ matrix.swift }}
+
+            - name: Cache Swift packages
+              uses: actions/cache@v4
+              with:
+                  path: .build
+                  key: ${{ runner.os }}-spm-${{ hashFiles('**/Package.resolved') }}
+                  restore-keys: |
+                      ${{ runner.os }}-spm-
+
+            - name: Build
+              run: swift build -v
+
+            - name: Run tests
+              run: swift test -v
+
+            - name: Build release
+              run: swift build -c release
+              if: matrix.os == 'macos-latest'
+
+    lint:
+        name: SwiftLint
+        runs-on: macos-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: SwiftLint
+              uses: norio-nomura/action-swiftlint@3.2.1
+              continue-on-error: true
